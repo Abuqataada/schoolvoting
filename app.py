@@ -30,7 +30,11 @@ Session(app)
 
 # Database configuration
 def get_db_connection():
+    # Render provides DATABASE_URL environment variable
     database_url = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_CzyA6c9imSWL@ep-noisy-sun-a41ubng9-pooler.us-east-1.aws.neon.tech/voting_db?sslmode=require')
+    if database_url and database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    
     conn = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
     return conn
 
