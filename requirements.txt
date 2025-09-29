@@ -1,0 +1,10 @@
+Flask
+Flask-Session
+face-recognition
+opencv-python
+numpy
+Pillow
+Werkzeug
+psycopg2-binary
+waitress
+gunicorn
