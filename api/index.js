@@ -8,17 +8,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Database configuration from your Aiven setup
+// Secure database configuration using environment variables
 const dbConfig = {
-  host: 'voting-db-abuqataada21-54f9.l.aivencloud.com',
-  port: 23198,
-  user: 'avnadmin',
-  password: 'AVNS_IttvoCuWeY-kq_jQebf',
-  database: 'defaultdb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT) || 23198,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   ssl: {
     rejectUnauthorized: false
   }
 };
+
+// Validate that all required environment variables are set
+const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+requiredEnvVars.forEach(envVar => {
+  if (!process.env[envVar]) {
+    console.error(`Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+});
 
 // Helper function to get database connection
 async function getConnection() {
