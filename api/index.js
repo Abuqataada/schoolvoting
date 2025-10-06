@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg'); // Changed from mysql2 to pg
 const cors = require('cors');
 
 const app = express();
@@ -8,17 +8,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Secure database configuration using environment variables
-const dbConfig = {
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT) || 23198,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+// PostgreSQL database configuration
+const pool = new Pool({
+  host: process.env.DB_HOST || 'ep-noisy-sun-a41ubng9-pooler.us-east-1.aws.neon.tech',
+  port: parseInt(process.env.DB_PORT) || 5432,
+  user: process.env.DB_USER || 'neondb_owner',
+  password: process.env.DB_PASSWORD || 'npg_CzyA6c9imSWL',
+  database: process.env.DB_NAME || 'voting_db',
   ssl: {
     rejectUnauthorized: false
-  }
-};
+  },
+  connectionTimeoutMillis: 10000, // 10 second timeout
+  idleTimeoutMillis: 30000,
+  max: 20 // max number of clients in the pool
+});
 
 // Validate that all required environment variables are set
 const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
@@ -31,7 +34,7 @@ requiredEnvVars.forEach(envVar => {
 
 // Helper function to get database connection
 async function getConnection() {
-  return await mysql.createConnection(dbConfig);
+  return await pool.connect();
 }
 
 // API Routes
@@ -41,11 +44,11 @@ app.get('/api/election-data', async (req, res) => {
     connection = await getConnection();
     
     // Get active session
-    const [sessions] = await connection.execute(
-      'SELECT * FROM sessions WHERE is_active = 1 LIMIT 1'
+    const sessions = await connection.query(
+      'SELECT * FROM sessions WHERE is_active = true LIMIT 1'
     );
     
-    if (sessions.length === 0) {
+    if (sessions.rows.length === 0) {
       return res.json({ 
         activeSession: null,
         positions: [],
@@ -53,16 +56,16 @@ app.get('/api/election-data', async (req, res) => {
       });
     }
 
-    const activeSession = sessions[0];
+    const activeSession = sessions.rows[0];
 
     // Get all positions for active session
-    const [positions] = await connection.execute(
+    const positions = await connection.query(
       `SELECT p.*, COUNT(DISTINCT v.id) as total_voters, 
               COUNT(DISTINCT vl.id) as votes_cast
        FROM positions p
        LEFT JOIN voters v ON 1=1
-       LEFT JOIN voting_log vl ON vl.position_id = p.id AND vl.session_id = ?
-       WHERE p.session_id = ?
+       LEFT JOIN voting_log vl ON vl.position_id = p.id AND vl.session_id = $1
+       WHERE p.session_id = $2
        GROUP BY p.id
        ORDER BY p.display_order ASC`,
       [activeSession.id, activeSession.id]
@@ -70,22 +73,22 @@ app.get('/api/election-data', async (req, res) => {
 
     // Get candidates with vote counts for each position
     const positionsWithCandidates = await Promise.all(
-      positions.map(async (position) => {
-        const [candidates] = await connection.execute(
+      positions.rows.map(async (position) => {
+        const candidates = await connection.query(
           `SELECT c.*, COUNT(vl.id) as vote_count
            FROM candidates c
-           LEFT JOIN voting_log vl ON vl.candidate_id = c.id AND vl.session_id = ?
-           WHERE c.position_id = ?
+           LEFT JOIN voting_log vl ON vl.candidate_id = c.id AND vl.session_id = $1
+           WHERE c.position_id = $2
            GROUP BY c.id
            ORDER BY c.votes DESC, c.name ASC`,
           [activeSession.id, position.id]
         );
 
         // Calculate percentages
-        const totalVotes = candidates.reduce((sum, candidate) => sum + candidate.vote_count, 0);
-        const candidatesWithPercentages = candidates.map(candidate => ({
+        const totalVotes = candidates.rows.reduce((sum, candidate) => sum + parseInt(candidate.vote_count), 0);
+        const candidatesWithPercentages = candidates.rows.map(candidate => ({
           ...candidate,
-          percentage: totalVotes > 0 ? ((candidate.vote_count / totalVotes) * 100).toFixed(1) : 0
+          percentage: totalVotes > 0 ? ((parseInt(candidate.vote_count) / totalVotes) * 100).toFixed(1) : 0
         }));
 
         return {
@@ -97,15 +100,16 @@ app.get('/api/election-data', async (req, res) => {
     );
 
     // Get overall statistics
-    const [totalVoters] = await connection.execute('SELECT COUNT(*) as count FROM voters');
-    const [votedVoters] = await connection.execute('SELECT COUNT(*) as count FROM voters WHERE has_voted = 1');
-    const [totalVotes] = await connection.execute('SELECT COUNT(*) as count FROM voting_log WHERE session_id = ?', [activeSession.id]);
+    const totalVoters = await connection.query('SELECT COUNT(*) as count FROM voters');
+    const votedVoters = await connection.query('SELECT COUNT(*) as count FROM voters WHERE has_voted = true');
+    const totalVotes = await connection.query('SELECT COUNT(*) as count FROM voting_log WHERE session_id = $1', [activeSession.id]);
     
     const statistics = {
-      total_voters: totalVoters[0].count,
-      voted_voters: votedVoters[0].count,
-      total_votes: totalVotes[0].count,
-      turnout_percentage: ((votedVoters[0].count / totalVoters[0].count) * 100).toFixed(1)
+      total_voters: parseInt(totalVoters.rows[0].count),
+      voted_voters: parseInt(votedVoters.rows[0].count),
+      total_votes: parseInt(totalVotes.rows[0].count),
+      turnout_percentage: totalVoters.rows[0].count > 0 ? 
+        ((parseInt(votedVoters.rows[0].count) / parseInt(totalVoters.rows[0].count)) * 100).toFixed(1) : 0
     };
 
     res.json({
@@ -122,7 +126,7 @@ app.get('/api/election-data', async (req, res) => {
       details: error.message 
     });
   } finally {
-    if (connection) await connection.end();
+    if (connection) connection.release(); // Changed from end() to release()
   }
 });
 
@@ -131,7 +135,7 @@ app.get('/api/recent-votes', async (req, res) => {
   try {
     connection = await getConnection();
     
-    const [recentVotes] = await connection.execute(
+    const recentVotes = await connection.query(
       `SELECT vl.vote_timestamp, v.name as voter_name, v.grade as voter_grade,
               c.name as candidate_name, p.name as position_name
        FROM voting_log vl
@@ -142,12 +146,30 @@ app.get('/api/recent-votes', async (req, res) => {
        LIMIT 20`
     );
 
-    res.json(recentVotes);
+    res.json(recentVotes.rows);
   } catch (error) {
     console.error('Error fetching recent votes:', error);
     res.status(500).json({ error: 'Failed to fetch recent votes' });
   } finally {
-    if (connection) await connection.end();
+    if (connection) connection.release(); // Changed from end() to release()
+  }
+});
+
+// Health check endpoint
+app.get('/api/health', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ 
+      status: 'OK', 
+      database: 'Connected',
+      timestamp: result.rows[0].now 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'Error', 
+      database: 'Disconnected',
+      error: error.message 
+    });
   }
 });
 
