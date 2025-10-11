@@ -84,6 +84,11 @@
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
         }
 
+        .tie-glow {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+            border: 2px solid #f59e0b;
+        }
+
         .nav-blur {
             backdrop-filter: blur(20px);
             background: rgba(255, 255, 255, 0.8);
@@ -115,6 +120,17 @@
 
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: var(--primary);
+        }
+
+        /* Mobile header spacing fix */
+        .mobile-header-spacing {
+            padding-top: 80px; /* Space for fixed mobile header */
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-header-spacing {
+                padding-top: 0; /* Remove extra padding on desktop */
+            }
         }
     </style>
 </head>
@@ -254,8 +270,8 @@
                 </div>
             </div>
 
-            <!-- Main Content Area -->
-            <main class="flex-1 p-4 lg:p-8">
+            <!-- Main Content Area - Added mobile header spacing -->
+            <main class="flex-1 p-4 lg:p-8 mobile-header-spacing">
                 <!-- Statistics Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
                     <!-- Total Voters -->
@@ -525,9 +541,11 @@
                 }
 
                 container.innerHTML = positions.map(position => {
-                    const winner = position.candidates.reduce((prev, current) => 
-                        (prev.vote_count > current.vote_count) ? prev : current
-                    );
+                    // Check for ties
+                    const sortedCandidates = [...position.candidates].sort((a, b) => b.vote_count - a.vote_count);
+                    const maxVotes = sortedCandidates[0]?.vote_count || 0;
+                    const winners = sortedCandidates.filter(candidate => candidate.vote_count === maxVotes && candidate.vote_count > 0);
+                    const isTie = winners.length > 1;
 
                     return `
                         <div class="slide-in">
@@ -543,14 +561,22 @@
                                             <i class="fas fa-check-circle mr-1"></i>
                                             ${position.votes_cast || 0} cast
                                         </span>
+                                        ${isTie ? `
+                                            <span class="flex items-center px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                                                <i class="fas fa-balance-scale mr-1"></i>
+                                                TIE
+                                            </span>
+                                        ` : ''}
                                     </div>
                                 </div>
                                 
                                 <div class="space-y-4">
                                     ${position.candidates.map(candidate => {
-                                        const isWinner = candidate.id === winner.id && candidate.vote_count > 0;
+                                        const isWinner = winners.some(winner => winner.id === candidate.id);
+                                        const isTieCase = isWinner && isTie;
+                                        
                                         return `
-                                            <div class="candidate-card bg-gray-50 rounded-lg p-4 ${isWinner ? 'winner-glow border-2 border-green-200' : 'border border-gray-200'}">
+                                            <div class="candidate-card bg-gray-50 rounded-lg p-4 ${isTieCase ? 'tie-glow' : isWinner ? 'winner-glow border-2 border-green-200' : 'border border-gray-200'}">
                                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
                                                     <div class="flex items-center space-x-3 mb-2 sm:mb-0">
                                                         <div class="w-10 h-10 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
@@ -562,10 +588,10 @@
                                                         </div>
                                                     </div>
                                                     <div class="text-right">
-                                                        <div class="text-lg font-bold ${isWinner ? 'text-green-600' : 'text-indigo-600'}">
+                                                        <div class="text-lg font-bold ${isTieCase ? 'text-orange-600' : isWinner ? 'text-green-600' : 'text-indigo-600'}">
                                                             ${candidate.vote_count} votes
                                                         </div>
-                                                        <div class="text-sm ${isWinner ? 'text-green-600' : 'text-gray-600'} font-medium">
+                                                        <div class="text-sm ${isTieCase ? 'text-orange-600' : isWinner ? 'text-green-600' : 'text-gray-600'} font-medium">
                                                             ${candidate.percentage}%
                                                         </div>
                                                     </div>
@@ -573,10 +599,15 @@
                                                 
                                                 <div class="flex items-center space-x-3">
                                                     <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                        <div class="progress-bar h-2 rounded-full ${isWinner ? 'bg-green-500' : 'bg-gradient-to-r from-indigo-400 to-purple-500'}" 
+                                                        <div class="progress-bar h-2 rounded-full ${isTieCase ? 'bg-orange-500' : isWinner ? 'bg-green-500' : 'bg-gradient-to-r from-indigo-400 to-purple-500'}" 
                                                              style="width: ${candidate.percentage}%"></div>
                                                     </div>
-                                                    ${isWinner ? `
+                                                    ${isTieCase ? `
+                                                        <div class="flex items-center space-x-1 text-orange-600">
+                                                            <i class="fas fa-balance-scale"></i>
+                                                            <span class="text-sm font-medium">Tie</span>
+                                                        </div>
+                                                    ` : isWinner ? `
                                                         <div class="flex items-center space-x-1 text-green-600">
                                                             <i class="fas fa-trophy"></i>
                                                             <span class="text-sm font-medium">Winner</span>
