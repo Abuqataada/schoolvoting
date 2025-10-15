@@ -138,6 +138,55 @@
             border: 3px solid #e5e7eb;
             flex-shrink: 0;
         }
+
+        /* Countdown styles */
+        .countdown-container {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .countdown-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 640px) {
+            .countdown-value {
+                font-size: 1.5rem;
+                width: 50px;
+                height: 50px;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -280,6 +329,37 @@
 
             <!-- Main Content Area - Added mobile header spacing -->
             <main class="flex-1 p-4 lg:p-8 mobile-header-spacing">
+                <!-- Countdown Timer -->
+                <div id="countdownContainer" class="countdown-container">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-bold">Election Countdown</h2>
+                            <p class="opacity-90">Voting begins on October 16, 2025 at 8:30 AM</p>
+                        </div>
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="countdown-timer">
+                        <div class="countdown-unit">
+                            <div id="countdownDays" class="countdown-value">00</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-unit">
+                            <div id="countdownHours" class="countdown-value">00</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-unit">
+                            <div id="countdownMinutes" class="countdown-value">00</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-unit">
+                            <div id="countdownSeconds" class="countdown-value">00</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Statistics Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
                     <!-- Total Voters -->
@@ -377,12 +457,14 @@
                 this.apiBaseUrl = window.location.origin;
                 this.updateInterval = 8000; // 8 seconds
                 this.isLoading = false;
+                this.electionStartDate = new Date('October 16, 2025 08:30:00').getTime();
                 
                 this.init();
             }
 
             init() {
                 this.setupMobileMenu();
+                this.startCountdown();
                 this.loadData();
                 setInterval(() => this.loadData(), this.updateInterval);
                 this.createSkeletonLoaders();
@@ -407,6 +489,35 @@
                         mobileMenu.classList.remove('open');
                     }
                 });
+            }
+
+            startCountdown() {
+                const updateCountdown = () => {
+                    const now = new Date().getTime();
+                    const distance = this.electionStartDate - now;
+
+                    // If election has started, hide countdown and show results
+                    if (distance < 0) {
+                        document.getElementById('countdownContainer').style.display = 'none';
+                        return;
+                    }
+
+                    // Calculate time units
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    // Update countdown display
+                    document.getElementById('countdownDays').textContent = days.toString().padStart(2, '0');
+                    document.getElementById('countdownHours').textContent = hours.toString().padStart(2, '0');
+                    document.getElementById('countdownMinutes').textContent = minutes.toString().padStart(2, '0');
+                    document.getElementById('countdownSeconds').textContent = seconds.toString().padStart(2, '0');
+                };
+
+                // Update countdown immediately and then every second
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
             }
 
             createSkeletonLoaders() {
