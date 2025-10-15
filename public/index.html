@@ -35,7 +35,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -45,8 +45,8 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 25px;
+            margin-bottom: 25px;
             box-shadow: var(--shadow-lg);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
@@ -57,17 +57,18 @@
         }
 
         .school-name {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: 800;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
+            line-height: 1.2;
         }
 
         .election-title {
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             color: var(--gray);
             font-weight: 500;
         }
@@ -75,14 +76,14 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .stat-card {
             background: white;
-            padding: 25px;
+            padding: 20px 15px;
             border-radius: 15px;
             text-align: center;
             box-shadow: var(--shadow);
@@ -91,7 +92,7 @@
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
         }
 
@@ -101,9 +102,10 @@
         .stat-card.votes { border-left-color: var(--primary); }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
             font-weight: 700;
             margin-bottom: 5px;
+            line-height: 1;
         }
 
         .stat-card.voters .stat-number { color: var(--success); }
@@ -113,57 +115,45 @@
 
         .stat-label {
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
             font-weight: 500;
-        }
-
-        /* Main Content */
-        .main-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
         }
 
         /* Positions Grid */
         .positions-grid {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
         }
 
         .position-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 18px;
+            padding: 25px;
             box-shadow: var(--shadow-lg);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .position-header {
             display: flex;
-            justify-content: between;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid var(--border);
         }
 
         .position-title {
-            font-size: 1.5rem;
+            font-size: clamp(1.3rem, 2.5vw, 1.5rem);
             font-weight: 700;
             color: var(--primary-dark);
+            line-height: 1.2;
         }
 
         .position-stats {
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
         }
 
         /* Candidates List */
@@ -175,7 +165,7 @@
 
         .candidate-card {
             background: white;
-            padding: 20px;
+            padding: 18px;
             border-radius: 15px;
             box-shadow: var(--shadow);
             border-left: 4px solid transparent;
@@ -190,19 +180,19 @@
         }
 
         .candidate-card:hover {
-            transform: translateX(5px);
+            transform: translateX(3px);
             box-shadow: var(--shadow-lg);
         }
 
         .candidate-content {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 15px;
         }
 
         .candidate-photo {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--border);
@@ -210,49 +200,52 @@
         }
 
         .candidate-photo-placeholder {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--gray);
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             border: 3px solid var(--border);
             flex-shrink: 0;
         }
 
         .candidate-info {
             flex: 1;
+            min-width: 0; /* Prevents flex item from overflowing */
         }
 
         .candidate-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 8px;
         }
 
         .candidate-name {
-            font-size: 1.2rem;
+            font-size: clamp(1.1rem, 2vw, 1.2rem);
             font-weight: 600;
             color: var(--dark);
+            line-height: 1.2;
+            word-wrap: break-word;
         }
 
         .candidate-votes {
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 1.8vw, 1.1rem);
             font-weight: 700;
             color: var(--primary);
         }
 
         .candidate-details {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 5px;
             margin-bottom: 10px;
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
         }
 
         .vote-progress {
@@ -261,6 +254,7 @@
             border-radius: 10px;
             overflow: hidden;
             position: relative;
+            margin: 8px 0;
         }
 
         .vote-progress-bar {
@@ -276,76 +270,13 @@
 
         .vote-percentage {
             text-align: right;
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
             font-weight: 600;
             color: var(--primary);
-            margin-top: 5px;
         }
 
         .candidate-card.winner .vote-percentage {
             color: var(--success);
-        }
-
-        /* Recent Activity */
-        .recent-activity {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            height: fit-content;
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .activity-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .activity-item {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            border-left: 4px solid var(--primary);
-            animation: slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .activity-content {
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .activity-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--gray);
-            font-size: 0.8rem;
-            margin-top: 5px;
         }
 
         /* Status Bar */
@@ -353,18 +284,20 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 15px 25px;
-            margin-top: 30px;
+            padding: 15px 20px;
+            margin-top: 25px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 10px;
             align-items: center;
+            text-align: center;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .last-updated {
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
         }
 
         .live-indicator {
@@ -373,11 +306,12 @@
             gap: 8px;
             color: var(--success);
             font-weight: 600;
+            font-size: clamp(0.8rem, 1.5vw, 0.9rem);
         }
 
         .pulse {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: var(--success);
             border-radius: 50%;
             animation: pulse 2s infinite;
@@ -390,7 +324,7 @@
             }
             70% {
                 transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+                box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
             }
             100% {
                 transform: scale(0.95);
@@ -420,56 +354,100 @@
             }
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
+        /* Tablet and Desktop Styles */
+        @media (min-width: 768px) {
             .container {
-                padding: 15px;
+                padding: 25px;
             }
 
-            .school-name {
-                font-size: 2rem;
+            .header {
+                padding: 30px;
+                margin-bottom: 30px;
             }
 
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
             }
 
-            .position-card, .recent-activity {
-                padding: 20px;
+            .stat-card {
+                padding: 25px;
+            }
+
+            .position-card {
+                padding: 30px;
+            }
+
+            .position-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
             }
 
             .candidate-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
             }
 
-            .candidate-content {
-                flex-direction: column;
-                align-items: flex-start;
+            .candidate-details {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .status-bar {
+                flex-direction: row;
+                justify-content: space-between;
                 text-align: left;
             }
 
             .candidate-photo, .candidate-photo-placeholder {
-                width: 50px;
-                height: 50px;
+                width: 60px;
+                height: 60px;
             }
 
-            .status-bar {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
+            .candidate-photo-placeholder {
+                font-size: 1.5rem;
             }
         }
 
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1400px;
+            }
+        }
+
+        /* Small mobile adjustments */
+        @media (max-width: 360px) {
+            .container {
+                padding: 15px;
             }
 
-            .school-name {
-                font-size: 1.8rem;
+            .header {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .position-card {
+                padding: 20px;
+            }
+
+            .candidate-card {
+                padding: 15px;
+            }
+
+            .candidate-content {
+                gap: 12px;
+            }
+
+            .candidate-photo, .candidate-photo-placeholder {
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
@@ -491,7 +469,7 @@
                 </div>
                 <div class="stat-card voted">
                     <div class="stat-number" id="votedVoters">0</div>
-                    <div class="stat-label">Voters Cast</div>
+                    <div class="stat-label">Votes Cast</div>
                 </div>
                 <div class="stat-card turnout">
                     <div class="stat-number" id="turnoutPercentage">0%</div>
@@ -499,33 +477,19 @@
                 </div>
                 <div class="stat-card votes">
                     <div class="stat-number" id="totalVotes">0</div>
-                    <div class="stat-label">Total Votes Cast</div>
+                    <div class="stat-label">Total Votes</div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Positions and Candidates -->
-            <div class="positions-section">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-bar"></i>
-                    Election Results by Position
-                </h2>
-                <div class="positions-grid" id="positionsContainer">
-                    <!-- Positions will be dynamically loaded here -->
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="recent-activity">
-                <h2 class="section-title">
-                    <i class="fas fa-history"></i>
-                    Recent Voting Activity
-                </h2>
-                <div class="activity-list" id="recentActivity">
-                    <!-- Recent votes will be dynamically loaded here -->
-                </div>
+        <!-- Main Content - Positions Only -->
+        <div class="positions-section">
+            <h2 class="section-title">
+                <i class="fas fa-chart-bar"></i>
+                Election Results by Position
+            </h2>
+            <div class="positions-grid" id="positionsContainer">
+                <!-- Positions will be dynamically loaded here -->
             </div>
         </div>
 
@@ -536,7 +500,7 @@
             </div>
             <div class="live-indicator">
                 <div class="pulse"></div>
-                <span>LIVE UPDATES</span>
+                <span>LIVE UPDATES ACTIVE</span>
             </div>
         </div>
     </div>
@@ -564,7 +528,6 @@
 
             createSkeletonLoaders() {
                 const positionsContainer = document.getElementById('positionsContainer');
-                const recentActivity = document.getElementById('recentActivity');
                 
                 // Create skeleton for positions
                 for (let i = 0; i < 3; i++) {
@@ -572,24 +535,27 @@
                     positionSkeleton.className = 'position-card';
                     positionSkeleton.innerHTML = `
                         <div class="position-header">
-                            <div class="skeleton" style="width: 200px; height: 24px;"></div>
-                            <div class="skeleton" style="width: 100px; height: 16px;"></div>
+                            <div class="skeleton" style="width: 70%; height: 24px;"></div>
+                            <div class="skeleton" style="width: 40%; height: 16px;"></div>
                         </div>
                         <div class="candidates-list">
                             ${Array(3).fill().map(() => `
                                 <div class="candidate-card">
                                     <div class="candidate-content">
-                                        <div class="skeleton" style="width: 60px; height: 60px; border-radius: 50%;"></div>
+                                        <div class="skeleton" style="width: 50px; height: 50px; border-radius: 50%;"></div>
                                         <div class="candidate-info" style="flex: 1;">
                                             <div class="candidate-header">
-                                                <div class="skeleton" style="width: 150px; height: 20px;"></div>
-                                                <div class="skeleton" style="width: 60px; height: 20px;"></div>
+                                                <div class="skeleton" style="width: 60%; height: 20px;"></div>
+                                                <div class="skeleton" style="width: 25%; height: 20px;"></div>
                                             </div>
                                             <div class="candidate-details">
-                                                <div class="skeleton" style="width: 100px; height: 16px;"></div>
-                                                <div class="skeleton" style="width: 30px; height: 16px;"></div>
+                                                <div class="skeleton" style="width: 40%; height: 16px;"></div>
+                                                <div class="skeleton" style="width: 20%; height: 16px;"></div>
                                             </div>
-                                            <div class="skeleton" style="width: 100%; height: 8px; margin: 10px 0;"></div>
+                                            <div class="vote-progress">
+                                                <div class="skeleton" style="width: 100%; height: 8px;"></div>
+                                            </div>
+                                            <div class="skeleton" style="width: 30%; height: 16px; margin-top: 5px;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -597,17 +563,6 @@
                         </div>
                     `;
                     positionsContainer.appendChild(positionSkeleton);
-                }
-
-                // Create skeleton for recent activity
-                for (let i = 0; i < 5; i++) {
-                    const activitySkeleton = document.createElement('div');
-                    activitySkeleton.className = 'activity-item';
-                    activitySkeleton.innerHTML = `
-                        <div class="skeleton" style="width: 100%; height: 16px; margin-bottom: 8px;"></div>
-                        <div class="skeleton" style="width: 80%; height: 14px;"></div>
-                    `;
-                    recentActivity.appendChild(activitySkeleton);
                 }
             }
 
@@ -617,13 +572,8 @@
                 this.isLoading = true;
                 
                 try {
-                    const [electionData, recentVotes] = await Promise.all([
-                        this.fetchElectionData(),
-                        this.fetchRecentVotes()
-                    ]);
-
+                    const electionData = await this.fetchElectionData();
                     this.updateDashboard(electionData);
-                    this.updateRecentActivity(recentVotes);
                     this.updateLastUpdated();
 
                 } catch (error) {
@@ -636,12 +586,6 @@
 
             async fetchElectionData() {
                 const response = await fetch(`${this.apiBaseUrl}/api/election-data`);
-                if (!response.ok) throw new Error('Network response was not ok');
-                return await response.json();
-            }
-
-            async fetchRecentVotes() {
-                const response = await fetch(`${this.apiBaseUrl}/api/recent-votes`);
                 if (!response.ok) throw new Error('Network response was not ok');
                 return await response.json();
             }
@@ -743,42 +687,6 @@
                 return positionDiv;
             }
 
-            updateRecentActivity(votes) {
-                const container = document.getElementById('recentActivity');
-                container.innerHTML = '';
-
-                if (votes.length === 0) {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: var(--gray);">
-                            <i class="fas fa-info-circle"></i>
-                            <p>No recent voting activity</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                votes.forEach(vote => {
-                    const activityItem = document.createElement('div');
-                    activityItem.className = 'activity-item';
-                    
-                    const time = new Date(vote.vote_timestamp).toLocaleTimeString();
-                    
-                    activityItem.innerHTML = `
-                        <div class="activity-content">
-                            <strong>${this.escapeHtml(vote.voter_name)}</strong> voted for 
-                            <strong>${this.escapeHtml(vote.candidate_name)}</strong> as 
-                            ${this.escapeHtml(vote.position_name)}
-                        </div>
-                        <div class="activity-meta">
-                            <span>Grade ${this.escapeHtml(vote.voter_grade)}</span>
-                            <span>${time}</span>
-                        </div>
-                    `;
-                    
-                    container.appendChild(activityItem);
-                });
-            }
-
             updateLastUpdated() {
                 const now = new Date();
                 const timeString = now.toLocaleTimeString();
@@ -799,7 +707,6 @@
             }
 
             showError(message) {
-                // You could implement a more sophisticated error notification system
                 console.error('Dashboard Error:', message);
             }
 
